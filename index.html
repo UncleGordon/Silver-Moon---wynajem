@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silver Moon</title>
+
+<link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'League Spartan', sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+/* 🎥 VIDEO BACKGROUND */
+.video-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* 📦 PRZYCISKI */
+.container {
+  position: absolute;
+  top: 48%; /* 🔥 zmień np. 41% / 43% jeśli trzeba */
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  animation-delay: 1s;
+}
+
+/* ✨ Fade In */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* 🔘 PRZYCISKI */
+.button {
+  width: 190px;
+  padding: 11px;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  transition: all 0.3s ease;
+
+  animation: pulseBrown 3s infinite;
+}
+
+/* Hover */
+.button:hover {
+  transform: scale(1.07);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* 🤎 Jasny brązowy glow */
+@keyframes pulseBrown {
+  0% {
+    box-shadow: 0 0 0 0 rgba(193, 154, 107, 0.35);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(193, 154, 107, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(193, 154, 107, 0);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- 🎥 FILM -->
+<video autoplay muted loop playsinline class="video-bg">
+  <source src="film.mp4" type="video/mp4">
+</video>
+
+<!-- 🔘 PRZYCISKI -->
+<div class="container">
+
+  <a class="button"
+  href="https://wa.me/48534900140?text=Dzień%20dobry,%20w%20sprawie%20wynajmu.">
+  WhatsApp
+  </a>
+
+  <a class="button"
+  href="https://m.me/KacperNiedzielski1106">
+  Messenger
+  </a>
+
+  <a class="button"
+  href="sms:+48534900140?body=Dzień%20dobry,%20w%20sprawie%20wynajmu%20Silver%20Moon.">
+  SMS
+  </a>
+
+</div>
+
+</body>
+</html>
