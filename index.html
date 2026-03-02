@@ -68,37 +68,41 @@
       100% { box-shadow: 0 0 0 0 rgba(193,154,107,0); }
     }
 
-    /* 🟫 BRĄZOWY PROSTOKĄT NA DOLE */
+    /* 🟫 DÓŁ: brązowy obszar + 2 osobne zaokrąglone kafelki */
     .bottom-wrap{
       position:absolute;
-      left:0; right:0;
-      bottom:0;
-      height: 22%;
-      padding: 12px 12px 14px;
-      background: rgba(120, 86, 50, 0.55);
-      backdrop-filter: blur(6px);
-      border-top: 2px solid rgba(255,255,255,0.85);
+      left:0;
+      right:0;
+      bottom:5%;              /* podniesione o 5% */
       display:flex;
-      align-items:stretch;
+      justify-content:center;
     }
 
-    /* zaokrąglona rama kafelków */
-    .bottom-box{
-      width:100%;
-      height:100%;
+    .bottom-area{
+      width:92%;
+      height:22vh;
       display:flex;
+      gap:12px;
+      padding:12px;
+      border-radius:28px;
+      background: rgba(120, 86, 50, 0.45);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
 
-    .tile{
+    .mini-card{
       width:50%;
       height:100%;
       position:relative;
       overflow:hidden;
+      border-radius:22px;
       cursor:pointer;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.08);
     }
 
-    .tile iframe,
-    .tile img{
+    .mini-card iframe,
+    .mini-card img{
       width:100%;
       height:100%;
       object-fit:cover;
@@ -106,27 +110,28 @@
       display:block;
     }
 
-    .tile::after{
+    .mini-card::after{
       content:"";
       position:absolute;
       inset:0;
       background: rgba(0,0,0,0.18);
       transition:.25s ease;
-      z-index:1;
       pointer-events:none;
     }
-    .tile:hover::after{ background: rgba(0,0,0,0.32); }
+    .mini-card:hover::after{
+      background: rgba(0,0,0,0.32);
+    }
 
-    .tile span{
+    .mini-card span{
       position:absolute;
-      bottom:12px;
-      left:12px;
+      bottom:14px;
+      left:16px;
       color:#fff;
       font-weight:600;
-      font-size:14px;
+      font-size:15px;
       z-index:2;
       pointer-events:none;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.45);
+      text-shadow: 0 3px 15px rgba(0,0,0,0.6);
     }
 
     /* 📸 FULLSCREEN GALERIA */
@@ -204,7 +209,6 @@
 <body>
 
   <!-- 🎥 FILM -->
-  <!-- Jeśli trzymasz video w public/ -> użyj src="/bg.mp4?v=1". Jeśli obok index.html -> "bg.mp4?v=1" -->
   <video autoplay muted loop playsinline preload="metadata" class="video-bg" poster="1.jpg">
     <source src="bg.mp4?v=1" type="video/mp4">
   </video>
@@ -216,18 +220,21 @@
     <a class="button" href="https://m.me/KacperNiedzielski1106">Messenger</a>
     <a class="button" href="sms:+48534900140?body=Dzień%20dobry,%20w%20sprawie%20wynajmu.">SMS</a>
   </div>
-  
+
+  <!-- 🟫 DÓŁ: brązowy obszar + DWA osobne zaokrąglone kafelki -->
+  <div class="bottom-wrap">
+    <div class="bottom-area">
+
       <!-- 🗺 MAPA: Uraz, dolnośląskie -->
-      <a class="tile" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
+      <a class="mini-card" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
         <iframe
           src="https://maps.google.com/maps?q=Uraz%2C%20dolno%C5%9Bl%C4%85skie&z=13&output=embed"
-          loading="lazy">
-        </iframe>
+          loading="lazy"></iframe>
         <span>Zobacz lokalizację</span>
       </a>
 
       <!-- 📸 GALERIA -->
-      <div class="tile" onclick="openGallery()">
+      <div class="mini-card" onclick="openGallery()">
         <img src="1.jpg" alt="Galeria">
         <span>Zobacz galerię</span>
       </div>
@@ -308,6 +315,3 @@
 
 </body>
 </html>
-
-
-
