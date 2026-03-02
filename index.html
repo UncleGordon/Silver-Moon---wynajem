@@ -87,25 +87,6 @@
       width:100%;
       height:100%;
       display:flex;
-      border-radius: 18px;
-      overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.55);
-      background: rgba(0,0,0,0.12);
-      position:relative;
-    }
-
-    /* biała linia na środku brązowego prostokąta (dzieli kafelki) */
-    .divider{
-      position:absolute;
-      top:0;
-      bottom:0;
-      left:50%;
-      width:2px;
-      transform:translateX(-1px);
-      background: rgba(255,255,255,0.9);
-      z-index:4;
-      pointer-events:none;
-      box-shadow: 0 0 10px rgba(0,0,0,0.25);
     }
 
     .tile{
@@ -239,7 +220,6 @@
   <!-- 🟫 BRĄZOWY DÓŁ + KAFELKI -->
   <div class="bottom-wrap">
     <div class="bottom-box">
-      <div class="divider"></div>
 
       <!-- 🗺 MAPA: Uraz, dolnośląskie -->
       <a class="tile" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
@@ -332,4 +312,5 @@
 
 </body>
 </html>
+
 
