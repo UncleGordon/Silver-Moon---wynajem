@@ -19,14 +19,14 @@
       z-index:-2;
     }
 
-    /* delikatne przyciemnienie dla czytelności */
+    /* lekkie przyciemnienie (czytelność) */
     .shade{
       position:fixed; inset:0;
       background: rgba(0,0,0,0.15);
       z-index:-1;
     }
 
-    /* 🔘 PRZYCISKI (jak na starej: wycentrowane, fade-in, pulse) */
+    /* 🔘 PRZYCISKI */
     .container{
       position:absolute;
       top:42%;
@@ -74,38 +74,38 @@
       left:0; right:0;
       bottom:0;
       height: 22%;
-      display:flex;
-      align-items:stretch;
       padding: 12px 12px 14px;
-      background: rgba(120, 86, 50, 0.55);   /* brązowy */
+      background: rgba(120, 86, 50, 0.55);
       backdrop-filter: blur(6px);
       border-top: 2px solid rgba(255,255,255,0.85);
+      display:flex;
+      align-items:stretch;
     }
 
-    /* „Wewnętrzny” kontener kafelków: zaokrąglenia jak na starej */
+    /* zaokrąglona rama kafelków */
     .bottom-box{
       width:100%;
       height:100%;
       display:flex;
-      gap:0;
       border-radius: 18px;
-      overflow:hidden; /* żeby kafelki były równo zaokrąglone */
+      overflow:hidden;
       border: 1px solid rgba(255,255,255,0.55);
-      position:relative;
       background: rgba(0,0,0,0.12);
+      position:relative;
     }
 
-    /* biała linia po środku */
-    .bottom-box::before{
-      content:"";
+    /* biała linia na środku brązowego prostokąta (dzieli kafelki) */
+    .divider{
       position:absolute;
-      top:0; bottom:0;
+      top:0;
+      bottom:0;
       left:50%;
       width:2px;
       transform:translateX(-1px);
       background: rgba(255,255,255,0.9);
-      z-index:3;
+      z-index:4;
       pointer-events:none;
+      box-shadow: 0 0 10px rgba(0,0,0,0.25);
     }
 
     .tile{
@@ -159,6 +159,7 @@
       touch-action: pan-y;
     }
     .gallery-full img{ max-width:100%; max-height:100%; }
+
     .close{
       position:absolute;
       top:18px; right:18px;
@@ -166,7 +167,55 @@
       font-size:32px;
       cursor:pointer;
       user-select:none;
-      z-index:1000;
+      z-index:1002;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+    }
+
+    /* strzałki w galerii */
+    .nav-arrow{
+      position:absolute;
+      top:50%;
+      transform: translateY(-50%);
+      width:46px;
+      height:46px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(8px);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+      cursor:pointer;
+      z-index:1001;
+      user-select:none;
+      transition: transform .15s ease, background .15s ease;
+    }
+    .nav-arrow:hover{
+      background: rgba(255,255,255,0.18);
+      transform: translateY(-50%) scale(1.06);
+    }
+    .nav-left{ left:16px; }
+    .nav-right{ right:16px; }
+
+    /* podpowiedź swipe */
+    .hint{
+      position:absolute;
+      bottom:18px;
+      left:50%;
+      transform: translateX(-50%);
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      color:#fff;
+      font-weight:600;
+      font-size:13px;
+      z-index:1001;
+      user-select:none;
+      opacity: 0.95;
     }
   </style>
 </head>
@@ -174,7 +223,7 @@
 <body>
 
   <!-- 🎥 FILM -->
-  <!-- Jeśli trzymasz bg.mp4 w folderze public, ustaw src="/bg.mp4?v=1" -->
+  <!-- Jeśli trzymasz video w public/ -> użyj src="/bg.mp4?v=1". Jeśli obok index.html -> "bg.mp4?v=1" -->
   <video autoplay muted loop playsinline preload="metadata" class="video-bg" poster="1.jpg">
     <source src="bg.mp4?v=1" type="video/mp4">
   </video>
@@ -190,10 +239,14 @@
   <!-- 🟫 BRĄZOWY DÓŁ + KAFELKI -->
   <div class="bottom-wrap">
     <div class="bottom-box">
+      <div class="divider"></div>
 
-      <!-- 🗺 MAPA -->
-      <a class="tile" href="https://maps.google.com/?q=TwojAdres" target="_blank" rel="noreferrer">
-        <iframe src="https://maps.google.com/maps?q=TwojAdres&z=15&output=embed" loading="lazy"></iframe>
+      <!-- 🗺 MAPA: Uraz, dolnośląskie -->
+      <a class="tile" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
+        <iframe
+          src="https://maps.google.com/maps?q=Uraz%2C%20dolno%C5%9Bl%C4%85skie&z=13&output=embed"
+          loading="lazy">
+        </iframe>
         <span>Zobacz lokalizację</span>
       </a>
 
@@ -209,7 +262,12 @@
   <!-- FULLSCREEN -->
   <div class="gallery-full" id="gallery" aria-hidden="true">
     <span class="close" onclick="closeGallery()">×</span>
+
+    <div class="nav-arrow nav-left" onclick="prevImg()">‹</div>
+    <div class="nav-arrow nav-right" onclick="nextImg()">›</div>
+
     <img id="gallery-img" alt="Zdjęcie z galerii">
+    <div class="hint">Przesuń palcem ← →</div>
   </div>
 
   <script>
@@ -220,17 +278,33 @@
     ];
     let index = 0;
 
+    function showImg(){
+      document.getElementById("gallery-img").src = images[index];
+    }
+
     function openGallery(){
       const g = document.getElementById("gallery");
       g.style.display = "flex";
       g.setAttribute("aria-hidden","false");
-      document.getElementById("gallery-img").src = images[index];
+      showImg();
     }
 
     function closeGallery(){
       const g = document.getElementById("gallery");
       g.style.display = "none";
       g.setAttribute("aria-hidden","true");
+    }
+
+    function nextImg(){
+      index++;
+      if(index >= images.length) index = 0;
+      showImg();
+    }
+
+    function prevImg(){
+      index--;
+      if(index < 0) index = images.length - 1;
+      showImg();
     }
 
     // swipe mobile
@@ -241,11 +315,19 @@
 
     document.getElementById("gallery").addEventListener("touchend", e => {
       const endX = e.changedTouches[0].clientX;
-      if(endX < startX) index++; else index--;
-      if(index < 0) index = images.length - 1;
-      if(index >= images.length) index = 0;
-      document.getElementById("gallery-img").src = images[index];
+      if(endX < startX) nextImg();
+      else prevImg();
     }, { passive:true });
+
+    // klawiatura (desktop)
+    document.addEventListener("keydown", (e) => {
+      const g = document.getElementById("gallery");
+      if(g.style.display !== "flex") return;
+
+      if(e.key === "ArrowRight") nextImg();
+      if(e.key === "ArrowLeft") prevImg();
+      if(e.key === "Escape") closeGallery();
+    });
   </script>
 
 </body>
