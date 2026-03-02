@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silver Moon</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'League Spartan', sans-serif; }
+    body { overflow:hidden; }
+
+    /* 🎥 VIDEO */
+    .video-bg{
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      z-index:-1;
+    }
+
+    /* 🔘 PRZYCISKI */
+    .container{
+      position:absolute;
+      top:42%; left:50%;
+      transform:translate(-50%,-50%);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      opacity:0;
+      animation:fadeIn 1.2s ease forwards;
+      animation-delay:1s;
+    }
+    @keyframes fadeIn { to { opacity:1; transform:translate(-50%,-50%); } }
+
+    .button{
+      width:180px;
+      padding:10px;
+      text-align:center;
+      text-decoration:none;
+      border-radius:40px;
+      font-weight:600;
+      font-size:15px;
+      color:white;
+
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,0.12);
+      border:1px solid rgba(255,255,255,0.25);
+
+      transition:all 0.3s ease;
+      animation:pulseBrown 3s infinite;
+    }
+    .button:hover{ transform:scale(1.07); background:rgba(255,255,255,0.22); }
+    @keyframes pulseBrown{
+      0%{ box-shadow:0 0 0 0 rgba(193,154,107,0.4); }
+      70%{ box-shadow:0 0 0 14px rgba(193,154,107,0); }
+      100%{ box-shadow:0 0 0 0 rgba(193,154,107,0); }
+    }
+
+    /* 📦 DOLNY KAFEL */
+    .bottom-box{
+      position:absolute;
+      bottom:0;
+      width:100%;
+      height:22%;
+      display:flex;
+      border-top:2px solid white;
+    }
+
+    /* MAPA + GALERIA */
+    .tile{
+      width:50%;
+      height:100%;
+      position:relative;
+      overflow:hidden;
+      cursor:pointer;
+    }
+    .tile iframe, .tile img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      border:0;
+    }
+
+    .tile::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,0.15);
+      transition:0.3s;
+      pointer-events:none;
+    }
+    .tile:hover::after{ background:rgba(0,0,0,0.3); }
+
+    .tile span{
+      position:absolute;
+      bottom:12px;
+      left:12px;
+      color:white;
+      font-weight:600;
+      font-size:14px;
+      z-index:2;
+      pointer-events:none;
+    }
+
+    /* 📸 FULLSCREEN GALERIA */
+    .gallery-full{
+      position:fixed;
+      inset:0;
+      background:black;
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:999;
+      touch-action:pan-y;
+    }
+    .gallery-full img{ max-width:100%; max-height:100%; }
+    .close{
+      position:absolute;
+      top:20px;
+      right:20px;
+      color:white;
+      font-size:30px;
+      cursor:pointer;
+      user-select:none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 🎥 FILM (stała nazwa bg.mp4 + “v=…” żeby zawsze łapało nowy) -->
+  <video autoplay muted loop playsinline preload="metadata" class="video-bg" poster="1.jpg">
+    <source src="bg.mp4?v=1" type="video/mp4">
+  </video>
+
+  <!-- 🔘 PRZYCISKI -->
+  <div class="container">
+    <a class="button" href="https://wa.me/48534900140?text=Dzień%20dobry,%20w%20sprawie%20wynajmu.">WhatsApp</a>
+    <a class="button" href="https://m.me/KacperNiedzielski1106">Messenger</a>
+    <a class="button" href="sms:+48534900140?body=Dzień%20dobry,%20w%20sprawie%20wynajmu.">SMS</a>
+  </div>
+
+  <!-- 📦 DOLNY KAFEL -->
+  <div class="bottom-box">
+
+    <!-- 🗺 MAPA -->
+    <a class="tile" href="https://maps.google.com/?q=TwojAdres" target="_blank" rel="noreferrer">
+      <iframe src="https://maps.google.com/maps?q=TwojAdres&z=15&output=embed" loading="lazy"></iframe>
+      <span>Zobacz lokalizację</span>
+    </a>
+
+    <!-- 📸 GALERIA -->
+    <div class="tile" onclick="openGallery()">
+      <img src="1.jpg" alt="Galeria">
+      <span>Zobacz galerię</span>
+    </div>
+
+  </div>
+
+  <!-- FULLSCREEN -->
+  <div class="gallery-full" id="gallery" aria-hidden="true">
+    <span class="close" onclick="closeGallery()">×</span>
+    <img id="gallery-img" alt="Zdjęcie z galerii">
+  </div>
+
+  <script>
+    const images = [
+      "1.jpg","2.jpg","3.jpg","4.jpg","5.jpg",
+      "6.jpg","7.jpg","8.jpg","9.jpg","10.jpg",
+      "11.jpg","12.jpg","13.jpg","14.jpg","15.jpg"
+    ];
+
+    let index = 0;
+
+    function openGallery(){
+      const g = document.getElementById("gallery");
+      g.style.display = "flex";
+      g.setAttribute("aria-hidden", "false");
+      document.getElementById("gallery-img").src = images[index];
+    }
+
+    function closeGallery(){
+      const g = document.getElementById("gallery");
+      g.style.display = "none";
+      g.setAttribute("aria-hidden", "true");
+    }
+
+    let startX = 0;
+
+    document.getElementById("gallery").addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.getElementById("gallery").addEventListener("touchend", e => {
+      const endX = e.changedTouches[0].clientX;
+
+      if(endX < startX) index++;
+      else index--;
+
+      if(index < 0) index = images.length - 1;
+      if(index >= images.length) index = 0;
+
+      document.getElementById("gallery-img").src = images[index];
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
