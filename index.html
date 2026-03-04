@@ -11,7 +11,6 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family:'League Spartan', sans-serif; }
     body { overflow:hidden; }
 
-    /* 🎥 VIDEO */
     .video-bg{
       position:fixed; inset:0;
       width:100%; height:100%;
@@ -19,14 +18,12 @@
       z-index:-2;
     }
 
-    /* lekkie przyciemnienie (czytelność) */
     .shade{
       position:fixed; inset:0;
       background: rgba(0,0,0,0.15);
       z-index:-1;
     }
 
-    /* 🔘 PRZYCISKI */
     .container{
       position:absolute;
       top:43%;
@@ -38,6 +35,7 @@
       opacity:0;
       animation: fadeIn 1.2s ease forwards;
       animation-delay: 0.8s;
+      z-index: 5;
     }
     @keyframes fadeIn { to { opacity:1; transform:translate(-50%,-50%); } }
 
@@ -57,6 +55,8 @@
 
       transition: all .25s ease;
       animation: pulseBrown 3s infinite;
+      cursor: pointer;
+      user-select: none;
     }
     .button:hover{
       transform: scale(1.06);
@@ -68,14 +68,35 @@
       100% { box-shadow: 0 0 0 0 rgba(193,154,107,0); }
     }
 
-    /* 🟫 DÓŁ: brązowy obszar + 2 osobne zaokrąglone kafelki */
+    /* mini komunikat po skopiowaniu numeru */
+    .toast{
+      position: fixed;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    .toast.show{ opacity: 1; }
+
     .bottom-wrap{
       position:absolute;
       left:0;
       right:0;
-      bottom:9%;              /* podniesione o 5% */
+      bottom:9%;
       display:flex;
       justify-content:center;
+      z-index: 4;
     }
 
     .bottom-area{
@@ -134,7 +155,6 @@
       text-shadow: 0 3px 15px rgba(0,0,0,0.6);
     }
 
-    /* 📸 FULLSCREEN GALERIA */
     .gallery-full{
       position:fixed; inset:0;
       background:#000;
@@ -142,7 +162,7 @@
       justify-content:center;
       align-items:center;
       z-index:999;
-      touch-action: pan-y;
+      touch-action: none; /* ✅ wyłącz gesty dotykowe w galerii */
     }
     .gallery-full img{ max-width:100%; max-height:100%; }
 
@@ -157,7 +177,6 @@
       text-shadow: 0 2px 12px rgba(0,0,0,0.6);
     }
 
-    /* strzałki w galerii */
     .nav-arrow{
       position:absolute;
       top:50%;
@@ -184,28 +203,29 @@
     }
     .nav-left{ left:16px; }
     .nav-right{ right:16px; }
-    
   </style>
 </head>
 
 <body>
-  
+
   <!-- 🖼 TŁO -->
-<img src="tlo.jpg" class="video-bg">
+  <img src="tlo.jpg" class="video-bg">
   <div class="shade"></div>
 
-  <!-- 🔘 PRZYCISKI -->
- <div class="container">
-  <a class="button" href="https://wa.me/48534900140?text=Dzień%20dobry,%20w%20sprawie%20wynajmu.">WhatsApp</a>
-  <a class="button" href="https://m.me/KacperNiedzielski1106">Messenger</a>
-  <a class="button" href="tel:+48534900140">Zadzwoń</a>
-</div>
+  <!-- toast -->
+  <div class="toast" id="toast">Skopiowano numer</div>
 
-  <!-- 🟫 DÓŁ: brązowy obszar + DWA osobne zaokrąglone kafelki -->
+  <!-- 🔘 PRZYCISKI -->
+  <div class="container">
+    <a class="button" href="https://wa.me/48534900140?text=Dzień%20dobry,%20w%20sprawie%20wynajmu.">WhatsApp</a>
+    <a class="button" href="https://m.me/KacperNiedzielski1106">Messenger</a>
+    <div class="button" id="copyBtn">Kopiuj numer</div>
+  </div>
+
+  <!-- 🟫 DÓŁ -->
   <div class="bottom-wrap">
     <div class="bottom-area">
 
-      <!-- 🗺 MAPA: Uraz, dolnośląskie -->
       <a class="mini-card" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
         <iframe
           src="https://maps.google.com/maps?q=Uraz%2C%20dolno%C5%9Bl%C4%85skie&z=13&output=embed"
@@ -213,7 +233,6 @@
         <span>Zobacz lokalizację</span>
       </a>
 
-      <!-- 📸 GALERIA -->
       <div class="mini-card" onclick="openGallery()">
         <img src="1.jpg" alt="Galeria">
         <span>Zobacz galerię</span>
@@ -222,18 +241,32 @@
     </div>
   </div>
 
-  <!-- FULLSCREEN -->
+  <!-- GALERIA -->
   <div class="gallery-full" id="gallery" aria-hidden="true">
     <span class="close" onclick="closeGallery()">×</span>
-
     <div class="nav-arrow nav-left" onclick="prevImg()">‹</div>
     <div class="nav-arrow nav-right" onclick="nextImg()">›</div>
-
     <img id="gallery-img" alt="Zdjęcie z galerii">
-    <div class="hint">Przesuń palcem ← →</div>
   </div>
 
   <script>
+    const PHONE = "+48 534 900 140";
+    const PHONE_RAW = "+48534900140";
+
+    // ✅ kopiowanie numeru (działa nawet w TikToku)
+    const toast = document.getElementById("toast");
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(PHONE_RAW);
+        toast.textContent = "Skopiowano: " + PHONE;
+      } catch (e) {
+        // jeśli clipboard zablokowany, pokaż numer do skopiowania ręcznie
+        toast.textContent = "Numer: " + PHONE;
+      }
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    });
+
     const images = [
       "1.jpg","2.jpg","3.jpg","4.jpg","5.jpg",
       "6.jpg","7.jpg","8.jpg","9.jpg","10.jpg",
@@ -244,49 +277,30 @@
     function showImg(){
       document.getElementById("gallery-img").src = images[index];
     }
-
     function openGallery(){
       const g = document.getElementById("gallery");
       g.style.display = "flex";
       g.setAttribute("aria-hidden","false");
       showImg();
     }
-
     function closeGallery(){
       const g = document.getElementById("gallery");
       g.style.display = "none";
       g.setAttribute("aria-hidden","true");
     }
-
     function nextImg(){
-      index++;
-      if(index >= images.length) index = 0;
+      index = (index + 1) % images.length;
       showImg();
     }
-
     function prevImg(){
-      index--;
-      if(index < 0) index = images.length - 1;
+      index = (index - 1 + images.length) % images.length;
       showImg();
     }
-
-    // swipe mobile
-    let startX = 0;
-    document.getElementById("gallery").addEventListener("touchstart", e => {
-      startX = e.touches[0].clientX;
-    }, { passive:true });
-
-    document.getElementById("gallery").addEventListener("touchend", e => {
-      const endX = e.changedTouches[0].clientX;
-      if(endX < startX) nextImg();
-      else prevImg();
-    }, { passive:true });
 
     // klawiatura (desktop)
     document.addEventListener("keydown", (e) => {
       const g = document.getElementById("gallery");
       if(g.style.display !== "flex") return;
-
       if(e.key === "ArrowRight") nextImg();
       if(e.key === "ArrowLeft") prevImg();
       if(e.key === "Escape") closeGallery();
@@ -295,9 +309,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
