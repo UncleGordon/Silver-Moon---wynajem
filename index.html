@@ -5,70 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Silver Moon</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'League Spartan', sans-serif; }
-    body { overflow:hidden; }
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'League Spartan', sans-serif;
+    }
+
+    body{
+      overflow:hidden;
+      background:#000;
+    }
 
     .video-bg{
-      position:fixed; inset:0;
-      width:100%; height:100%;
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
       object-fit:cover;
       z-index:-2;
+      filter: brightness(0.72);
     }
 
     .shade{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,0.15);
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0.38)),
+        rgba(0,0,0,0.12);
       z-index:-1;
     }
 
-    .container{
-      position:absolute;
-      top:43%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      opacity:0;
-      animation: fadeIn 1.2s ease forwards;
-      animation-delay: 0.8s;
-      z-index: 5;
-    }
-    @keyframes fadeIn { to { opacity:1; transform:translate(-50%,-50%); } }
-
-    .button{
-      width: 190px;
-      padding: 11px 12px;
-      text-align:center;
-      text-decoration:none;
-      border-radius: 40px;
-      font-weight:600;
-      font-size:15px;
-      color:#fff;
-
-      backdrop-filter: blur(10px);
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-
-      transition: all .25s ease;
-      animation: pulseBrown 3s infinite;
-      cursor: pointer;
-      user-select: none;
-    }
-    .button:hover{
-      transform: scale(1.06);
-      background: rgba(255,255,255,0.20);
-    }
-    @keyframes pulseBrown{
-      0% { box-shadow: 0 0 0 0 rgba(193,154,107,0.45); }
-      70% { box-shadow: 0 0 0 14px rgba(193,154,107,0); }
-      100% { box-shadow: 0 0 0 0 rgba(193,154,107,0); }
-    }
-
-    /* mini komunikat po skopiowaniu numeru */
     .toast{
       position: fixed;
       left: 50%;
@@ -89,24 +59,153 @@
     }
     .toast.show{ opacity: 1; }
 
+    .container{
+      position:absolute;
+      top:39%;
+      left:50%;
+      transform:translate(-50%,-50%);
+      width:min(88vw, 320px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:12px;
+      opacity:0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: .25s;
+      z-index:5;
+    }
+
+    @keyframes fadeIn{
+      to{
+        opacity:1;
+        transform:translate(-50%,-50%);
+      }
+    }
+
+    .hero-text{
+      color:#fff;
+      text-align:center;
+      line-height:1.05;
+      font-size:34px;
+      font-weight:700;
+      text-shadow:0 6px 24px rgba(0,0,0,.45);
+      letter-spacing:.2px;
+    }
+
+    .hero-text span{
+      display:block;
+      margin-top:8px;
+      font-size:17px;
+      font-weight:500;
+      opacity:.96;
+      letter-spacing:.2px;
+    }
+
+    .price{
+      padding:9px 18px 8px;
+      border-radius:999px;
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      background: rgba(110, 82, 50, 0.52);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px rgba(0,0,0,.22);
+    }
+
+    .button{
+      width:100%;
+      min-height:58px;
+      padding: 14px 16px;
+      text-align:center;
+      text-decoration:none;
+      border-radius:999px;
+      font-weight:600;
+      font-size:16px;
+      color:#fff;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.24);
+      transition: transform .22s ease, background .22s ease, box-shadow .22s ease;
+      cursor: pointer;
+      user-select: none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+    }
+
+    .button:hover{
+      transform: scale(1.03);
+    }
+
+    .main-btn{
+      background: linear-gradient(135deg, rgba(34,197,94,.94), rgba(22,163,74,.94));
+      border:none;
+      box-shadow: 0 16px 34px rgba(10,80,30,.35);
+      animation: pulseGreen 2.4s infinite;
+    }
+
+    @keyframes pulseGreen{
+      0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.38), 0 16px 34px rgba(10,80,30,.35); }
+      70% { box-shadow: 0 0 0 16px rgba(34,197,94,0), 0 16px 34px rgba(10,80,30,.35); }
+      100% { box-shadow: 0 0 0 0 rgba(34,197,94,0), 0 16px 34px rgba(10,80,30,.35); }
+    }
+
+    .secondary-btn{
+      background: rgba(255,255,255,0.14);
+    }
+
+    .btn-content{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+
+    .contact-mini{
+      color:#fff;
+      font-size:18px;
+      font-weight:600;
+      text-align:center;
+      cursor:pointer;
+      text-shadow:0 4px 14px rgba(0,0,0,.45);
+      opacity:.96;
+      transition: transform .18s ease, opacity .18s ease;
+    }
+
+    .contact-mini:hover{
+      transform: scale(1.03);
+      opacity:1;
+    }
+
+    .fast-reply{
+      color:#fff;
+      font-size:16px;
+      font-weight:600;
+      text-align:center;
+      text-shadow:0 4px 14px rgba(0,0,0,.4);
+      opacity:.95;
+    }
+
     .bottom-wrap{
       position:absolute;
       left:0;
       right:0;
-      bottom:7%;
+      bottom:5.5%;
       display:flex;
       justify-content:center;
-      z-index: 4;
+      z-index:4;
     }
 
     .bottom-area{
       width:92%;
-      height:22vh;
+      height:20vh;
+      min-height:145px;
       display:flex;
       gap:12px;
       padding:12px;
       border-radius:28px;
-      background: rgba(120, 86, 50, 0.45);
+      background: rgba(120, 86, 50, 0.46);
       backdrop-filter: blur(10px);
       box-shadow: 0 20px 40px rgba(0,0,0,0.35);
     }
@@ -118,8 +217,9 @@
       overflow:hidden;
       border-radius:22px;
       cursor:pointer;
-      border: 1px solid rgba(255,255,255,0.28);
+      border: 1px solid rgba(255,255,255,0.24);
       background: rgba(255,255,255,0.08);
+      text-decoration:none;
     }
 
     .mini-card iframe,
@@ -135,40 +235,49 @@
       content:"";
       position:absolute;
       inset:0;
-      background: rgba(0,0,0,0.18);
+      background: linear-gradient(to top, rgba(0,0,0,.4), rgba(0,0,0,.08));
       transition:.25s ease;
       pointer-events:none;
     }
+
     .mini-card:hover::after{
-      background: rgba(0,0,0,0.32);
+      background: linear-gradient(to top, rgba(0,0,0,.5), rgba(0,0,0,.16));
     }
 
     .mini-card span{
       position:absolute;
       bottom:14px;
       left:16px;
+      right:12px;
       color:#fff;
       font-weight:600;
-      font-size:15px;
+      font-size:16px;
       z-index:2;
       pointer-events:none;
       text-shadow: 0 3px 15px rgba(0,0,0,0.6);
+      line-height:1.05;
     }
 
     .gallery-full{
-      position:fixed; inset:0;
+      position:fixed;
+      inset:0;
       background:#000;
       display:none;
       justify-content:center;
       align-items:center;
       z-index:999;
-      touch-action: none; /* ✅ wyłącz gesty dotykowe w galerii */
+      touch-action:none;
     }
-    .gallery-full img{ max-width:100%; max-height:100%; }
+
+    .gallery-full img{
+      max-width:100%;
+      max-height:100%;
+    }
 
     .close{
       position:absolute;
-      top:18px; right:18px;
+      top:18px;
+      right:18px;
       color:#fff;
       font-size:32px;
       cursor:pointer;
@@ -197,69 +306,102 @@
       user-select:none;
       transition: transform .15s ease, background .15s ease;
     }
+
     .nav-arrow:hover{
       background: rgba(255,255,255,0.18);
       transform: translateY(-50%) scale(1.06);
     }
+
     .nav-left{ left:16px; }
     .nav-right{ right:16px; }
+
+    @media (max-width: 390px){
+      .hero-text{ font-size:30px; }
+      .hero-text span{ font-size:16px; }
+      .price{ font-size:16px; }
+      .button{ min-height:56px; font-size:15px; }
+      .contact-mini{ font-size:17px; }
+      .fast-reply{ font-size:15px; }
+      .bottom-area{ min-height:138px; }
+      .mini-card span{ font-size:15px; }
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- 🖼 TŁO -->
-  <img src="tło1.jpg" class="video-bg">
+  <!-- TŁO -->
+  <img src="tło1.jpg" class="video-bg" alt="Silver Moon tło">
   <div class="shade"></div>
 
   <!-- toast -->
   <div class="toast" id="toast">Skopiowano numer</div>
 
-  <!-- 🔘 PRZYCISKI -->
+  <!-- GŁÓWNA SEKCJA -->
   <div class="container">
-  <a class="button" href="https://wa.me/48534900140?text=Dzień%20dobry,%20w%20sprawie%20wynajmu.">
-    <span class="btn-content">
-      <!-- WhatsApp -->
-      <svg viewBox="0 0 32 32" width="18" height="18" fill="white">
-        <path d="M16 .396C7.163.396 0 7.56 0 16.396c0 2.893.757 5.73 2.193 8.22L0 32l7.594-2.165A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16.004C32 7.56 24.837.396 16 .396zm0 29.209c-2.6 0-5.143-.7-7.375-2.022l-.527-.313-4.507 1.284 1.205-4.395-.343-.553A13.48 13.48 0 0 1 2.52 16.396C2.52 8.943 8.547 2.917 16 2.917s13.48 6.026 13.48 13.48c0 7.453-6.027 13.48-13.48 13.48zm7.523-10.113c-.412-.206-2.438-1.202-2.815-1.338-.377-.137-.652-.206-.927.206-.274.412-1.064 1.338-1.304 1.613-.24.274-.48.309-.892.103-.412-.206-1.741-.641-3.317-2.046-1.227-1.094-2.055-2.444-2.295-2.856-.24-.412-.025-.634.181-.839.186-.185.412-.48.618-.72.206-.24.274-.412.412-.686.137-.274.069-.515-.034-.72-.103-.206-.927-2.238-1.27-3.065-.334-.803-.674-.694-.927-.707l-.792-.014c-.274 0-.72.103-1.098.515-.377.412-1.44 1.407-1.44 3.428 0 2.021 1.476 3.976 1.681 4.252.206.274 2.904 4.436 7.036 6.216.983.424 1.75.678 2.348.868.986.314 1.883.27 2.593.164.791-.118 2.438-.995 2.783-1.957.343-.961.343-1.785.24-1.957-.103-.172-.377-.274-.789-.48z"/>
-      </svg>
-      WhatsApp
-    </span>
-  </a>
 
-  <a class="button" href="https://m.me/KacperNiedzielski1106">
-    <span class="btn-content">
-      <!-- Messenger -->
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
-        <path d="M12 2C6.48 2 2 6.02 2 11c0 2.7 1.39 5.12 3.6 6.76V22l3.2-1.76c1 .28 2.07.43 3.2.43 5.52 0 10-4.02 10-9S17.52 2 12 2zm1.1 12.6l-2.6-2.8-4.8 2.8 5.3-5.6 2.6 2.8 4.8-2.8-5.3 5.6z"/>
-      </svg>
-      Messenger
-    </span>
-  </a>
+    <div class="hero-text">
+      ✨ Silver Moon
+      <span>Sauna • Balia • Odpoczynek</span>
+    </div>
 
-  <div class="button" id="copyBtn">
-    <span class="btn-content">
-      <!-- Telefon -->
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
-        <path d="M6.62 10.79a15.466 15.466 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.07 21 3 13.93 3 5c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.24.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-      </svg>
-      Kopiuj numer
-    </span>
+    <div class="price">Już od 500 zł / doba</div>
+
+    <a
+      class="button main-btn"
+      href="https://wa.me/48534900140?text=Cześć,%20chcę%20sprawdzić%20dostępność%20Silver%20Moon."
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Sprawdź dostępność na WhatsApp"
+    >
+      <span class="btn-content">
+        <svg viewBox="0 0 32 32" width="20" height="20" fill="white" aria-hidden="true">
+          <path d="M16 .396C7.163.396 0 7.56 0 16.396c0 2.893.757 5.73 2.193 8.22L0 32l7.594-2.165A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16.004C32 7.56 24.837.396 16 .396zm0 29.209c-2.6 0-5.143-.7-7.375-2.022l-.527-.313-4.507 1.284 1.205-4.395-.343-.553A13.48 13.48 0 0 1 2.52 16.396C2.52 8.943 8.547 2.917 16 2.917s13.48 6.026 13.48 13.48c0 7.453-6.027 13.48-13.48 13.48zm7.523-10.113c-.412-.206-2.438-1.202-2.815-1.338-.377-.137-.652-.206-.927.206-.274.412-1.064 1.338-1.304 1.613-.24.274-.48.309-.892.103-.412-.206-1.741-.641-3.317-2.046-1.227-1.094-2.055-2.444-2.295-2.856-.24-.412-.025-.634.181-.839.186-.185.412-.48.618-.72.206-.24.274-.412.412-.686.137-.274.069-.515-.034-.72-.103-.206-.927-2.238-1.27-3.065-.334-.803-.674-.694-.927-.707l-.792-.014c-.274 0-.72.103-1.098.515-.377.412-1.44 1.407-1.44 3.428 0 2.021 1.476 3.976 1.681 4.252.206.274 2.904 4.436 7.036 6.216.983.424 1.75.678 2.348.868.986.314 1.883.27 2.593.164.791-.118 2.438-.995 2.783-1.957.343-.961.343-1.785.24-1.957-.103-.172-.377-.274-.789-.48z"/>
+        </svg>
+        Sprawdź dostępność
+      </span>
+    </a>
+
+    <a
+      class="button secondary-btn"
+      href="https://m.me/KacperNiedzielski1106"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Napisz na Messengerze"
+    >
+      <span class="btn-content">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="white" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.02 2 11c0 2.7 1.39 5.12 3.6 6.76V22l3.2-1.76c1 .28 2.07.43 3.2.43 5.52 0 10-4.02 10-9S17.52 2 12 2zm1.1 12.6l-2.6-2.8-4.8 2.8 5.3-5.6 2.6 2.8 4.8-2.8-5.3 5.6z"/>
+        </svg>
+        Messenger
+      </span>
+    </a>
+
+    <div class="contact-mini" id="copyBtn">📞 lub zadzwoń: 534 900 140</div>
+
+    <div class="fast-reply">⚡ Odpowiadam w 5 minut</div>
+
   </div>
-</div>
-  <!-- 🟫 DÓŁ -->
+
+  <!-- DÓŁ -->
   <div class="bottom-wrap">
     <div class="bottom-area">
 
-      <a class="mini-card" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
+      <a
+        class="mini-card"
+        href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Zobacz lokalizację"
+      >
         <iframe
           src="https://maps.google.com/maps?q=Uraz%2C%20dolno%C5%9Bl%C4%85skie&z=13&output=embed"
           loading="lazy"></iframe>
         <span>Zobacz lokalizację</span>
       </a>
 
-      <div class="mini-card" onclick="openGallery()">
-        <img src="1.jpg" alt="Galeria">
+      <div class="mini-card" onclick="openGallery()" aria-label="Zobacz galerię" role="button" tabindex="0">
+        <img src="1.jpg" alt="Galeria Silver Moon">
         <span>Zobacz galerię</span>
       </div>
 
@@ -278,14 +420,12 @@
     const PHONE = "+48 534 900 140";
     const PHONE_RAW = "+48534900140";
 
-    // ✅ kopiowanie numeru (działa nawet w TikToku)
     const toast = document.getElementById("toast");
     document.getElementById("copyBtn").addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(PHONE_RAW);
         toast.textContent = "Skopiowano: " + PHONE;
       } catch (e) {
-        // jeśli clipboard zablokowany, pokaż numer do skopiowania ręcznie
         toast.textContent = "Numer: " + PHONE;
       }
       toast.classList.add("show");
@@ -302,37 +442,40 @@
     function showImg(){
       document.getElementById("gallery-img").src = images[index];
     }
+
     function openGallery(){
       const g = document.getElementById("gallery");
       g.style.display = "flex";
       g.setAttribute("aria-hidden","false");
       showImg();
     }
+
     function closeGallery(){
       const g = document.getElementById("gallery");
       g.style.display = "none";
       g.setAttribute("aria-hidden","true");
     }
+
     function nextImg(){
       index = (index + 1) % images.length;
       showImg();
     }
+
     function prevImg(){
       index = (index - 1 + images.length) % images.length;
       showImg();
     }
 
-    // klawiatura (desktop)
     document.addEventListener("keydown", (e) => {
       const g = document.getElementById("gallery");
       if(g.style.display !== "flex") return;
+
       if(e.key === "ArrowRight") nextImg();
       if(e.key === "ArrowLeft") prevImg();
       if(e.key === "Escape") closeGallery();
+      if(e.key === "Enter" && document.activeElement?.classList.contains("mini-card")) openGallery();
     });
   </script>
 
 </body>
 </html>
-
-
