@@ -57,24 +57,30 @@
     .nav-right{right:16px;}
 
     .calendar-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:1200;padding:18px;}
-    .calendar-box{width:min(94vw,420px);background:rgba(55,43,31,.82);border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:18px;color:#fff;box-shadow:0 25px 60px rgba(0,0,0,.45);}
+    .calendar-box{width:min(94vw,420px);background:rgba(55,43,31,.86);border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:18px;color:#fff;box-shadow:0 25px 60px rgba(0,0,0,.45);}
     .calendar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
     .calendar-title{font-size:22px;font-weight:700;}
     .cal-btn{width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;}
     .weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
     .weekdays div{text-align:center;font-size:12px;font-weight:700;opacity:.75;margin-bottom:6px;}
-    .day{height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:rgba(255,255,255,.10);}
-    .day.empty{background:transparent;}
-    .day.busy{background:rgba(220,38,38,.78);text-decoration:line-through;opacity:.78;}
+    .day{height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:rgba(255,255,255,.10);cursor:pointer;transition:.18s ease;}
+    .day.empty{background:transparent;cursor:default;}
+    .day.busy{background:rgba(220,38,38,.78);text-decoration:line-through;opacity:.78;pointer-events:none;}
     .day.free{background:rgba(255,255,255,.13);}
+    .day.selected{background:rgba(34,197,94,.95)!important;color:#fff;transform:scale(1.04);}
+    .day.in-range{background:rgba(34,197,94,.45)!important;color:#fff;}
+
     .calendar-legend{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:14px;font-size:13px;opacity:.9;}
     .dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px;}
     .dot-free{background:rgba(255,255,255,.45);}
     .dot-busy{background:rgba(220,38,38,.9);}
+    .dot-selected{background:rgba(34,197,94,.95);}
     .calendar-note{text-align:center;font-size:13px;margin-top:12px;opacity:.82;line-height:1.25;}
+    .selected-range{text-align:center;font-size:14px;font-weight:700;margin-top:12px;color:#fff;}
     .calendar-actions{display:flex;gap:10px;margin-top:15px;}
     .calendar-actions a,.calendar-actions button{flex:1;min-height:46px;border-radius:999px;border:0;text-decoration:none;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;}
     .reserve-small{background:linear-gradient(135deg,rgba(34,197,94,.94),rgba(22,163,74,.94));}
+    .reserve-small.disabled{opacity:.45;pointer-events:none;}
     .close-small{background:rgba(255,255,255,.14);}
 
     @media (max-width:390px){
@@ -113,7 +119,7 @@
 
     <a
       class="button main-btn"
-      href="https://wa.me/48534900140?text=Cześć,%20sprawdziłem%20dostępność%20i%20chcę%20zarezerwować%20termin:%20____"
+      href="https://wa.me/48534900140?text=Cześć,%20chcę%20zarezerwować%20Silver%20Moon.%20Termin:%20____"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -164,16 +170,18 @@
       <div class="calendar-legend">
         <span><i class="dot dot-free"></i>wolne</span>
         <span><i class="dot dot-busy"></i>zajęte</span>
+        <span><i class="dot dot-selected"></i>wybrane</span>
       </div>
 
+      <div class="selected-range" id="selectedRange">Wybierz datę przyjazdu i wyjazdu</div>
+
       <div class="calendar-note">
-        Brak czerwonego oznaczenia oznacza dostępny termin. Po wybraniu dat napisz do mnie na WhatsApp.
+        Czerwone dni są zajęte. Kliknij pierwszy i ostatni dzień pobytu, a potem „Rezerwuj”.
       </div>
 
       <div class="calendar-actions">
         <button class="close-small" onclick="closeCalendar()">Zamknij</button>
-        <a class="reserve-small" target="_blank" rel="noopener noreferrer"
-           href="https://wa.me/48534900140?text=Cześć,%20sprawdziłem%20dostępność%20i%20chcę%20zarezerwować%20termin:%20____">
+        <a id="calendarReserveBtn" class="reserve-small disabled" target="_blank" rel="noopener noreferrer" href="#">
           Rezerwuj
         </a>
       </div>
@@ -214,6 +222,8 @@
 
     let unavailableEvents = [];
     let calendarDate = new Date();
+    let selectedStart = null;
+    let selectedEnd = null;
 
     async function loadCalendarEvents(){
       try{
@@ -232,9 +242,73 @@
       return `${y}-${m}-${d}`;
     }
 
+    function formatPL(ymd){
+      const [y,m,d] = ymd.split("-");
+      return `${d}.${m}.${y}`;
+    }
+
     function isBusy(date){
       const ymd = toYMD(date);
       return unavailableEvents.some(ev => ymd >= ev.start && ymd < ev.end);
+    }
+
+    function rangeHasBusyDays(start, end){
+      let current = new Date(start + "T00:00:00");
+      const finish = new Date(end + "T00:00:00");
+
+      while(current <= finish){
+        if(isBusy(current)) return true;
+        current.setDate(current.getDate() + 1);
+      }
+
+      return false;
+    }
+
+    function selectDate(ymd){
+      if(!selectedStart || selectedEnd){
+        selectedStart = ymd;
+        selectedEnd = null;
+      } else {
+        if(ymd < selectedStart){
+          selectedEnd = selectedStart;
+          selectedStart = ymd;
+        } else {
+          selectedEnd = ymd;
+        }
+
+        if(rangeHasBusyDays(selectedStart, selectedEnd)){
+          selectedStart = ymd;
+          selectedEnd = null;
+          alert("Ten zakres zawiera zajęte dni. Wybierz inny termin.");
+        }
+      }
+
+      renderCalendar();
+    }
+
+    function updateReserveButton(){
+      const btn = document.getElementById("calendarReserveBtn");
+      const rangeText = document.getElementById("selectedRange");
+
+      if(!selectedStart && !selectedEnd){
+        btn.classList.add("disabled");
+        btn.href = "#";
+        rangeText.textContent = "Wybierz datę przyjazdu i wyjazdu";
+        return;
+      }
+
+      if(selectedStart && !selectedEnd){
+        btn.classList.add("disabled");
+        btn.href = "#";
+        rangeText.textContent = `Przyjazd: ${formatPL(selectedStart)} — wybierz wyjazd`;
+        return;
+      }
+
+      btn.classList.remove("disabled");
+      rangeText.textContent = `Wybrany termin: ${formatPL(selectedStart)} - ${formatPL(selectedEnd)}`;
+
+      const message = `Cześć, sprawdziłem dostępność i chcę zarezerwować Silver Moon w terminie: ${formatPL(selectedStart)} - ${formatPL(selectedEnd)}.`;
+      btn.href = `https://wa.me/48534900140?text=${encodeURIComponent(message)}`;
     }
 
     function renderCalendar(){
@@ -260,11 +334,29 @@
 
       for(let day=1; day<=lastDay.getDate(); day++){
         const date = new Date(year, month, day);
+        const ymd = toYMD(date);
+        const busy = isBusy(date);
+
         const cell = document.createElement("div");
-        cell.className = "day " + (isBusy(date) ? "busy" : "free");
+        cell.className = "day " + (busy ? "busy" : "free");
         cell.textContent = day;
+
+        if(selectedStart === ymd || selectedEnd === ymd){
+          cell.classList.add("selected");
+        }
+
+        if(selectedStart && selectedEnd && ymd > selectedStart && ymd < selectedEnd){
+          cell.classList.add("in-range");
+        }
+
+        if(!busy){
+          cell.onclick = () => selectDate(ymd);
+        }
+
         grid.appendChild(cell);
       }
+
+      updateReserveButton();
     }
 
     async function openCalendar(){
