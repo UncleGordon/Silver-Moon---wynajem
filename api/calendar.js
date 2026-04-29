@@ -1,37 +1,307 @@
-export default async function handler(req, res) {
-  try {
-    const icsUrl = process.env.GOOGLE_CALENDAR_ICS_URL;
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silver Moon</title>
 
-    if (!icsUrl) {
-      return res.status(500).json({ error: "Brak GOOGLE_CALENDAR_ICS_URL" });
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'League Spartan',sans-serif;}
+    body{overflow:hidden;background:#000;}
+
+    .video-bg{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:brightness(.72);}
+    .shade{position:fixed;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.18),rgba(0,0,0,.38)),rgba(0,0,0,.12);z-index:-1;}
+
+    .toast{position:fixed;left:50%;top:12px;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(8px);z-index:9999;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+    .toast.show{opacity:1;}
+
+    .container{position:absolute;top:39%;left:50%;transform:translate(-50%,-50%);width:min(88vw,320px);display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;animation:fadeIn 1s ease forwards;animation-delay:.25s;z-index:5;}
+    @keyframes fadeIn{to{opacity:1;transform:translate(-50%,-50%);}}
+
+    .hero-text{color:#fff;text-align:center;line-height:1.05;font-size:34px;font-weight:700;text-shadow:0 6px 24px rgba(0,0,0,.45);letter-spacing:.2px;}
+    .hero-text span{display:block;margin-top:8px;font-size:17px;font-weight:500;opacity:.96;letter-spacing:.2px;}
+    .sub-info{display:block;margin-top:4px;font-size:14px;font-weight:500;opacity:.8;}
+
+    .price{padding:9px 18px 8px;border-radius:999px;color:#fff;font-size:18px;font-weight:700;background:rgba(110,82,50,.52);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(10px);box-shadow:0 10px 25px rgba(0,0,0,.22);}
+
+    .button{width:100%;min-height:58px;padding:14px 16px;text-align:center;text-decoration:none;border-radius:999px;font-weight:600;font-size:16px;color:#fff;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.24);transition:transform .22s ease,background .22s ease,box-shadow .22s ease;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(0,0,0,.22);}
+    .button:hover{transform:scale(1.03);}
+    .availability-btn{background:rgba(110,82,50,.58);}
+    .main-btn{background:linear-gradient(135deg,rgba(34,197,94,.94),rgba(22,163,74,.94));border:none;box-shadow:0 16px 34px rgba(10,80,30,.35);animation:pulseGreen 2.4s infinite;}
+    @keyframes pulseGreen{
+      0%{box-shadow:0 0 0 0 rgba(34,197,94,.38),0 16px 34px rgba(10,80,30,.35);}
+      70%{box-shadow:0 0 0 16px rgba(34,197,94,0),0 16px 34px rgba(10,80,30,.35);}
+      100%{box-shadow:0 0 0 0 rgba(34,197,94,0),0 16px 34px rgba(10,80,30,.35);}
+    }
+    .secondary-btn{background:rgba(255,255,255,.14);}
+    .btn-content{display:flex;align-items:center;justify-content:center;gap:10px;}
+
+    .contact-mini{color:#fff;font-size:18px;font-weight:600;text-align:center;cursor:pointer;text-shadow:0 4px 14px rgba(0,0,0,.45);opacity:.96;transition:transform .18s ease,opacity .18s ease;}
+    .contact-mini:hover{transform:scale(1.03);opacity:1;}
+    .fast-reply{color:#fff;font-size:16px;font-weight:600;text-align:center;text-shadow:0 4px 14px rgba(0,0,0,.4);opacity:.95;}
+
+    .bottom-wrap{position:absolute;left:0;right:0;bottom:5.5%;display:flex;justify-content:center;z-index:4;}
+    .bottom-area{width:92%;height:20vh;min-height:145px;display:flex;gap:12px;padding:12px;border-radius:28px;background:rgba(120,86,50,.46);backdrop-filter:blur(10px);box-shadow:0 20px 40px rgba(0,0,0,.35);}
+    .mini-card{width:50%;height:100%;position:relative;overflow:hidden;border-radius:22px;cursor:pointer;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);text-decoration:none;}
+    .mini-card iframe,.mini-card img{width:100%;height:100%;object-fit:cover;border:0;display:block;}
+    .mini-card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.4),rgba(0,0,0,.08));transition:.25s ease;pointer-events:none;}
+    .mini-card span{position:absolute;bottom:14px;left:16px;right:12px;color:#fff;font-weight:600;font-size:16px;z-index:2;pointer-events:none;text-shadow:0 3px 15px rgba(0,0,0,.6);line-height:1.05;}
+
+    .gallery-full{position:fixed;inset:0;background:#000;display:none;justify-content:center;align-items:center;z-index:999;touch-action:none;}
+    .gallery-full img{max-width:100%;max-height:100%;}
+    .close{position:absolute;top:18px;right:18px;color:#fff;font-size:32px;cursor:pointer;user-select:none;z-index:1002;text-shadow:0 2px 12px rgba(0,0,0,.6);}
+    .nav-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.10);backdrop-filter:blur(8px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;z-index:1001;user-select:none;}
+    .nav-left{left:16px;}
+    .nav-right{right:16px;}
+
+    .calendar-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:1200;padding:18px;}
+    .calendar-box{width:min(94vw,420px);background:rgba(55,43,31,.82);border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:18px;color:#fff;box-shadow:0 25px 60px rgba(0,0,0,.45);}
+    .calendar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .calendar-title{font-size:22px;font-weight:700;}
+    .cal-btn{width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;}
+    .weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+    .weekdays div{text-align:center;font-size:12px;font-weight:700;opacity:.75;margin-bottom:6px;}
+    .day{height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;background:rgba(255,255,255,.10);}
+    .day.empty{background:transparent;}
+    .day.busy{background:rgba(220,38,38,.78);text-decoration:line-through;opacity:.78;}
+    .day.free{background:rgba(255,255,255,.13);}
+    .calendar-legend{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:14px;font-size:13px;opacity:.9;}
+    .dot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px;}
+    .dot-free{background:rgba(255,255,255,.45);}
+    .dot-busy{background:rgba(220,38,38,.9);}
+    .calendar-note{text-align:center;font-size:13px;margin-top:12px;opacity:.82;line-height:1.25;}
+    .calendar-actions{display:flex;gap:10px;margin-top:15px;}
+    .calendar-actions a,.calendar-actions button{flex:1;min-height:46px;border-radius:999px;border:0;text-decoration:none;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .reserve-small{background:linear-gradient(135deg,rgba(34,197,94,.94),rgba(22,163,74,.94));}
+    .close-small{background:rgba(255,255,255,.14);}
+
+    @media (max-width:390px){
+      .hero-text{font-size:30px;}
+      .hero-text span{font-size:16px;}
+      .price{font-size:16px;}
+      .button{min-height:54px;font-size:15px;}
+      .contact-mini{font-size:17px;}
+      .fast-reply{font-size:15px;}
+      .bottom-area{min-height:138px;}
+      .mini-card span{font-size:15px;}
+      .day{height:34px;font-size:14px;}
+    }
+  </style>
+</head>
+
+<body>
+
+  <img src="tło1.jpg" class="video-bg" alt="Silver Moon tło">
+  <div class="shade"></div>
+
+  <div class="toast" id="toast">Skopiowano numer</div>
+
+  <div class="container">
+    <div class="hero-text">
+      ✨ Silver Moon
+      <span>Sauna • Balia • Odpoczynek</span>
+      <span class="sub-info">Do 6 osób</span>
+    </div>
+
+    <div class="price">Już od 500 zł / doba</div>
+
+    <button class="button availability-btn" onclick="openCalendar()">
+      <span class="btn-content">📅 Sprawdź dostępność</span>
+    </button>
+
+    <a
+      class="button main-btn"
+      href="https://wa.me/48534900140?text=Cześć,%20sprawdziłem%20dostępność%20i%20chcę%20zarezerwować%20termin:%20____"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span class="btn-content">
+        <svg viewBox="0 0 32 32" width="20" height="20" fill="white" aria-hidden="true">
+          <path d="M16 .396C7.163.396 0 7.56 0 16.396c0 2.893.757 5.73 2.193 8.22L0 32l7.594-2.165A15.94 15.94 0 0 0 16 32c8.837 0 16-7.163 16-16.004C32 7.56 24.837.396 16 .396zm0 29.209c-2.6 0-5.143-.7-7.375-2.022l-.527-.313-4.507 1.284 1.205-4.395-.343-.553A13.48 13.48 0 0 1 2.52 16.396C2.52 8.943 8.547 2.917 16 2.917s13.48 6.026 13.48 13.48c0 7.453-6.027 13.48-13.48 13.48zm7.523-10.113c-.412-.206-2.438-1.202-2.815-1.338-.377-.137-.652-.206-.927.206-.274.412-1.064 1.338-1.304 1.613-.24.274-.48.309-.892.103-.412-.206-1.741-.641-3.317-2.046-1.227-1.094-2.055-2.444-2.295-2.856-.24-.412-.025-.634.181-.839.186-.185.412-.48.618-.72.206-.24.274-.412.412-.686.137-.274.069-.515-.034-.72-.103-.206-.927-2.238-1.27-3.065-.334-.803-.674-.694-.927-.707l-.792-.014c-.274 0-.72.103-1.098.515-.377.412-1.44 1.407-1.44 3.428 0 2.021 1.476 3.976 1.681 4.252.206.274 2.904 4.436 7.036 6.216.983.424 1.75.678 2.348.868.986.314 1.883.27 2.593.164.791-.118 2.438-.995 2.783-1.957.343-.961.343-1.785.24-1.957-.103-.172-.377-.274-.789-.48z"/>
+        </svg>
+        Chcę zarezerwować
+      </span>
+    </a>
+
+    <a class="button secondary-btn" href="https://m.me/KacperNiedzielski1106" target="_blank" rel="noopener noreferrer">
+      <span class="btn-content">Messenger</span>
+    </a>
+
+    <div class="contact-mini" id="copyBtn">📞 lub zadzwoń: 534 900 140</div>
+    <div class="fast-reply">⚡ Odpowiadam w 5 minut</div>
+  </div>
+
+  <div class="bottom-wrap">
+    <div class="bottom-area">
+      <a class="mini-card" href="https://www.google.com/maps/search/?api=1&query=Uraz%2C%20dolno%C5%9Bl%C4%85skie" target="_blank" rel="noreferrer">
+        <iframe src="https://maps.google.com/maps?q=Uraz%2C%20dolno%C5%9Bl%C4%85skie&z=13&output=embed" loading="lazy"></iframe>
+        <span>Zobacz lokalizację</span>
+      </a>
+
+      <div class="mini-card" onclick="openGallery()" role="button" tabindex="0">
+        <img src="1.jpg" alt="Galeria Silver Moon">
+        <span>Zobacz galerię</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-modal" id="calendarModal">
+    <div class="calendar-box">
+      <div class="calendar-top">
+        <button class="cal-btn" onclick="prevMonth()">‹</button>
+        <div class="calendar-title" id="calendarTitle">Kalendarz</div>
+        <button class="cal-btn" onclick="nextMonth()">›</button>
+      </div>
+
+      <div class="weekdays">
+        <div>Pon</div><div>Wt</div><div>Śr</div><div>Czw</div><div>Pt</div><div>Sob</div><div>Nd</div>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
+
+      <div class="calendar-legend">
+        <span><i class="dot dot-free"></i>wolne</span>
+        <span><i class="dot dot-busy"></i>zajęte</span>
+      </div>
+
+      <div class="calendar-note">
+        Brak czerwonego oznaczenia oznacza dostępny termin. Po wybraniu dat napisz do mnie na WhatsApp.
+      </div>
+
+      <div class="calendar-actions">
+        <button class="close-small" onclick="closeCalendar()">Zamknij</button>
+        <a class="reserve-small" target="_blank" rel="noopener noreferrer"
+           href="https://wa.me/48534900140?text=Cześć,%20sprawdziłem%20dostępność%20i%20chcę%20zarezerwować%20termin:%20____">
+          Rezerwuj
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery-full" id="gallery" aria-hidden="true">
+    <span class="close" onclick="closeGallery()">×</span>
+    <div class="nav-arrow nav-left" onclick="prevImg()">‹</div>
+    <div class="nav-arrow nav-right" onclick="nextImg()">›</div>
+    <img id="gallery-img" alt="Zdjęcie z galerii">
+  </div>
+
+  <script>
+    const PHONE = "+48 534 900 140";
+    const PHONE_RAW = "+48534900140";
+
+    const toast = document.getElementById("toast");
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(PHONE_RAW);
+        toast.textContent = "Skopiowano: " + PHONE;
+      } catch (e) {
+        toast.textContent = "Numer: " + PHONE;
+      }
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1800);
+    });
+
+    const images = ["1.jpg","2.jpg","3.jpg","4.jpg","5.jpg","6.jpg","7.jpg","8.jpg","9.jpg","10.jpg","11.jpg","12.jpg","13.jpg","14.jpg","15.jpg"];
+    let index = 0;
+
+    function showImg(){ document.getElementById("gallery-img").src = images[index]; }
+    function openGallery(){ const g=document.getElementById("gallery"); g.style.display="flex"; g.setAttribute("aria-hidden","false"); showImg(); }
+    function closeGallery(){ const g=document.getElementById("gallery"); g.style.display="none"; g.setAttribute("aria-hidden","true"); }
+    function nextImg(){ index=(index+1)%images.length; showImg(); }
+    function prevImg(){ index=(index-1+images.length)%images.length; showImg(); }
+
+    let unavailableEvents = [];
+    let calendarDate = new Date();
+
+    async function loadCalendarEvents(){
+      try{
+        const res = await fetch("/api/calendar");
+        const data = await res.json();
+        unavailableEvents = data.events || [];
+      }catch(e){
+        unavailableEvents = [];
+      }
     }
 
-    const response = await fetch(icsUrl);
-    const text = await response.text();
+    function toYMD(date){
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,"0");
+      const d = String(date.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
 
-    const events = text
-      .split("BEGIN:VEVENT")
-      .slice(1)
-      .map(event => {
-        const startMatch = event.match(/DTSTART(?:;VALUE=DATE)?:([0-9]{8})/);
-        const endMatch = event.match(/DTEND(?:;VALUE=DATE)?:([0-9]{8})/);
+    function isBusy(date){
+      const ymd = toYMD(date);
+      return unavailableEvents.some(ev => ymd >= ev.start && ymd < ev.end);
+    }
 
-        if (!startMatch || !endMatch) return null;
+    function renderCalendar(){
+      const grid = document.getElementById("calendarGrid");
+      const title = document.getElementById("calendarTitle");
+      grid.innerHTML = "";
 
-        const formatDate = (raw) =>
-          `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}`;
+      const monthNames = ["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
 
-        return {
-          start: formatDate(startMatch[1]),
-          end: formatDate(endMatch[1])
-        };
-      })
-      .filter(Boolean);
+      title.textContent = `${monthNames[month]} ${year}`;
 
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
-    return res.status(200).json({ events });
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startOffset = (firstDay.getDay() + 6) % 7;
 
-  } catch (error) {
-    return res.status(500).json({ error: "Nie udało się pobrać kalendarza" });
-  }
-}
+      for(let i=0; i<startOffset; i++){
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        grid.appendChild(empty);
+      }
+
+      for(let day=1; day<=lastDay.getDate(); day++){
+        const date = new Date(year, month, day);
+        const cell = document.createElement("div");
+        cell.className = "day " + (isBusy(date) ? "busy" : "free");
+        cell.textContent = day;
+        grid.appendChild(cell);
+      }
+    }
+
+    async function openCalendar(){
+      document.getElementById("calendarModal").style.display = "flex";
+      await loadCalendarEvents();
+      renderCalendar();
+    }
+
+    function closeCalendar(){
+      document.getElementById("calendarModal").style.display = "none";
+    }
+
+    function nextMonth(){
+      calendarDate.setMonth(calendarDate.getMonth() + 1);
+      renderCalendar();
+    }
+
+    function prevMonth(){
+      calendarDate.setMonth(calendarDate.getMonth() - 1);
+      renderCalendar();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      const g = document.getElementById("gallery");
+      const c = document.getElementById("calendarModal");
+
+      if(e.key === "Escape"){
+        if(g.style.display === "flex") closeGallery();
+        if(c.style.display === "flex") closeCalendar();
+      }
+
+      if(g.style.display === "flex"){
+        if(e.key === "ArrowRight") nextImg();
+        if(e.key === "ArrowLeft") prevImg();
+      }
+    });
+  </script>
+
+</body>
+</html>
