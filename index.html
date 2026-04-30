@@ -35,7 +35,6 @@
       70%{box-shadow:0 0 0 16px rgba(34,197,94,0),0 16px 34px rgba(10,80,30,.35);}
       100%{box-shadow:0 0 0 0 rgba(34,197,94,0),0 16px 34px rgba(10,80,30,.35);}
     }
-    .secondary-btn{background:rgba(255,255,255,.14);}
     .btn-content{display:flex;align-items:center;justify-content:center;gap:10px;}
 
     .contact-mini{color:#fff;font-size:18px;font-weight:600;text-align:center;cursor:pointer;text-shadow:0 4px 14px rgba(0,0,0,.45);opacity:.96;transition:transform .18s ease,opacity .18s ease;}
@@ -56,8 +55,8 @@
     .nav-left{left:16px;}
     .nav-right{right:16px;}
 
-    .calendar-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:1200;padding:18px;}
-    .calendar-box{width:min(94vw,420px);background:rgba(55,43,31,.86);border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:18px;color:#fff;box-shadow:0 25px 60px rgba(0,0,0,.45);}
+    .calendar-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:1200;padding:18px;overflow:auto;}
+    .calendar-box{width:min(94vw,430px);max-height:92vh;overflow:auto;background:rgba(55,43,31,.88);border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:18px;color:#fff;box-shadow:0 25px 60px rgba(0,0,0,.45);}
     .calendar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
     .calendar-title{font-size:22px;font-weight:700;}
     .cal-btn{width:38px;height:38px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;}
@@ -77,8 +76,22 @@
     .dot-selected{background:rgba(34,197,94,.95);}
     .calendar-note{text-align:center;font-size:13px;margin-top:12px;opacity:.82;line-height:1.25;}
     .selected-range{text-align:center;font-size:14px;font-weight:700;margin-top:12px;color:#fff;}
+
+    .calculator-box{margin-top:14px;padding:14px;border-radius:20px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);}
+    .calc-title{font-size:17px;font-weight:700;margin-bottom:10px;text-align:center;}
+    .calc-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:14px;}
+    .calc-row label{font-weight:600;}
+    .calc-row select{width:120px;padding:9px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;font-weight:700;outline:none;}
+    .addons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+    .addon{padding:10px;border-radius:16px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);cursor:pointer;font-weight:700;font-size:14px;text-align:center;user-select:none;}
+    .addon input{display:none;}
+    .addon.active{background:rgba(34,197,94,.45);border-color:rgba(34,197,94,.8);}
+    .calc-summary{margin-top:12px;font-size:14px;line-height:1.4;opacity:.95;}
+    .calc-total{margin-top:8px;font-size:22px;font-weight:800;text-align:center;}
+    .calc-small{font-size:12px;opacity:.75;text-align:center;margin-top:6px;line-height:1.25;}
+
     .calendar-actions{display:flex;gap:10px;margin-top:15px;}
-    .calendar-actions a,.calendar-actions button{flex:1;min-height:46px;border-radius:999px;border:0;text-decoration:none;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .calendar-actions a,.calendar-actions button{flex:1;min-height:46px;border-radius:999px;border:0;text-decoration:none;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;text-align:center;}
     .reserve-small{background:linear-gradient(135deg,rgba(34,197,94,.94),rgba(22,163,74,.94));}
     .reserve-small.disabled{opacity:.45;pointer-events:none;}
     .close-small{background:rgba(255,255,255,.14);}
@@ -114,7 +127,7 @@
     <div class="price">Już od 500 zł / doba</div>
 
     <button class="button availability-btn" onclick="openCalendar()">
-      <span class="btn-content">📅 Sprawdź dostępność</span>
+      <span class="btn-content">📅 Sprawdź dostępność i cenę</span>
     </button>
 
     <a
@@ -129,10 +142,6 @@
         </svg>
         Chcę zarezerwować
       </span>
-    </a>
-
-    <a class="button secondary-btn" href="https://m.me/KacperNiedzielski1106" target="_blank" rel="noopener noreferrer">
-      <span class="btn-content">Messenger</span>
     </a>
 
     <div class="contact-mini" id="copyBtn">📞 lub zadzwoń: 534 900 140</div>
@@ -175,14 +184,53 @@
 
       <div class="selected-range" id="selectedRange">Wybierz datę przyjazdu i wyjazdu</div>
 
+      <div class="calculator-box">
+        <div class="calc-title">💰 Wycena pobytu</div>
+
+        <div class="calc-row">
+          <label for="guestCount">Liczba osób</label>
+          <select id="guestCount" onchange="updatePrice()">
+            <option value="1">1 osoba</option>
+            <option value="2">2 osoby</option>
+            <option value="3" selected>3 osoby</option>
+            <option value="4">4 osoby</option>
+            <option value="5">5 osób</option>
+            <option value="6">6 osób</option>
+          </select>
+        </div>
+
+        <div class="addons">
+          <label class="addon" id="saunaBox">
+            <input type="checkbox" id="sauna" onchange="toggleAddon('saunaBox'); updatePrice();">
+            Sauna +200 zł
+          </label>
+
+          <label class="addon" id="baliaBox">
+            <input type="checkbox" id="balia" onchange="toggleAddon('baliaBox'); updatePrice();">
+            Balia +200 zł
+          </label>
+        </div>
+
+        <div class="calc-summary" id="priceSummary">
+          Wybierz termin, aby zobaczyć wycenę.
+        </div>
+
+        <div class="calc-total" id="priceTotal">—</div>
+
+        <div class="calc-small">
+          Cena jest orientacyjna i wymaga potwierdzenia dostępności.
+          Sprzątanie 249 zł jest doliczane obowiązkowo.
+        </div>
+      </div>
+
       <div class="calendar-note">
-        Czerwone dni są zajęte. Kliknij pierwszy i ostatni dzień pobytu, a potem „Rezerwuj”.
+        Czerwone dni są zajęte. Kliknij datę przyjazdu i datę wyjazdu, a potem wyślij zapytanie.
       </div>
 
       <div class="calendar-actions">
         <button class="close-small" onclick="closeCalendar()">Zamknij</button>
         <a id="calendarReserveBtn" class="reserve-small disabled" target="_blank" rel="noopener noreferrer" href="#">
-          Rezerwuj
+          Wyślij zapytanie
         </a>
       </div>
     </div>
@@ -198,6 +246,10 @@
   <script>
     const PHONE = "+48 534 900 140";
     const PHONE_RAW = "+48534900140";
+
+    const CLEANING_FEE = 249;
+    const SAUNA_PRICE = 200;
+    const BALIA_PRICE = 200;
 
     const toast = document.getElementById("toast");
     document.getElementById("copyBtn").addEventListener("click", async () => {
@@ -252,11 +304,24 @@
       return unavailableEvents.some(ev => ymd >= ev.start && ymd < ev.end);
     }
 
+    function nightsBetween(start, end){
+      const startDate = new Date(start + "T00:00:00");
+      const endDate = new Date(end + "T00:00:00");
+      return Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+    }
+
+    function getNightPrice(guests){
+      if(guests <= 3) return 500;
+      if(guests === 4) return 550;
+      if(guests === 5) return 650;
+      return 700;
+    }
+
     function rangeHasBusyDays(start, end){
       let current = new Date(start + "T00:00:00");
       const finish = new Date(end + "T00:00:00");
 
-      while(current <= finish){
+      while(current < finish){
         if(isBusy(current)) return true;
         current.setDate(current.getDate() + 1);
       }
@@ -264,19 +329,27 @@
       return false;
     }
 
+    function toggleAddon(id){
+      const box = document.getElementById(id);
+      const input = box.querySelector("input");
+      setTimeout(() => {
+        box.classList.toggle("active", input.checked);
+      }, 0);
+    }
+
     function selectDate(ymd){
       if(!selectedStart || selectedEnd){
         selectedStart = ymd;
         selectedEnd = null;
       } else {
-        if(ymd < selectedStart){
-          selectedEnd = selectedStart;
+        if(ymd <= selectedStart){
           selectedStart = ymd;
+          selectedEnd = null;
         } else {
           selectedEnd = ymd;
         }
 
-        if(rangeHasBusyDays(selectedStart, selectedEnd)){
+        if(selectedEnd && rangeHasBusyDays(selectedStart, selectedEnd)){
           selectedStart = ymd;
           selectedEnd = null;
           alert("Ten zakres zawiera zajęte dni. Wybierz inny termin.");
@@ -284,9 +357,30 @@
       }
 
       renderCalendar();
+      updatePrice();
     }
 
-    function updateReserveButton(){
+    function calculatePrice(){
+      if(!selectedStart || !selectedEnd) return null;
+
+      const nights = nightsBetween(selectedStart, selectedEnd);
+      if(nights <= 0) return null;
+
+      const guests = Number(document.getElementById("guestCount").value);
+      const nightPrice = getNightPrice(guests);
+      const stayPrice = nights * nightPrice;
+      const sauna = document.getElementById("sauna").checked;
+      const balia = document.getElementById("balia").checked;
+      const saunaCost = sauna ? SAUNA_PRICE : 0;
+      const baliaCost = balia ? BALIA_PRICE : 0;
+      const total = stayPrice + CLEANING_FEE + saunaCost + baliaCost;
+
+      return { nights, guests, nightPrice, stayPrice, sauna, balia, saunaCost, baliaCost, total };
+    }
+
+    function updatePrice(){
+      const summary = document.getElementById("priceSummary");
+      const totalEl = document.getElementById("priceTotal");
       const btn = document.getElementById("calendarReserveBtn");
       const rangeText = document.getElementById("selectedRange");
 
@@ -294,6 +388,8 @@
         btn.classList.add("disabled");
         btn.href = "#";
         rangeText.textContent = "Wybierz datę przyjazdu i wyjazdu";
+        summary.textContent = "Wybierz termin, aby zobaczyć wycenę.";
+        totalEl.textContent = "—";
         return;
       }
 
@@ -301,13 +397,48 @@
         btn.classList.add("disabled");
         btn.href = "#";
         rangeText.textContent = `Przyjazd: ${formatPL(selectedStart)} — wybierz wyjazd`;
+        summary.textContent = "Wybierz datę wyjazdu, aby policzyć cenę.";
+        totalEl.textContent = "—";
+        return;
+      }
+
+      const price = calculatePrice();
+      if(!price){
+        btn.classList.add("disabled");
+        btn.href = "#";
         return;
       }
 
       btn.classList.remove("disabled");
       rangeText.textContent = `Wybrany termin: ${formatPL(selectedStart)} - ${formatPL(selectedEnd)}`;
 
-      const message = `Cześć, sprawdziłem dostępność i chcę zarezerwować Silver Moon w terminie: ${formatPL(selectedStart)} - ${formatPL(selectedEnd)}.`;
+      summary.innerHTML = `
+        ${price.nights} doby × ${price.nightPrice} zł = ${price.stayPrice} zł<br>
+        Sprzątanie: ${CLEANING_FEE} zł<br>
+        Sauna: ${price.sauna ? SAUNA_PRICE + " zł" : "nie"}<br>
+        Balia: ${price.balia ? BALIA_PRICE + " zł" : "nie"}
+      `;
+
+      totalEl.textContent = `Razem: ${price.total} zł`;
+
+      const message =
+`Cześć, chcę wysłać zapytanie o rezerwację Silver Moon.
+
+Termin: ${formatPL(selectedStart)} - ${formatPL(selectedEnd)}
+Liczba dób: ${price.nights}
+Liczba osób: ${price.guests}
+Sauna: ${price.sauna ? "tak" : "nie"}
+Balia: ${price.balia ? "tak" : "nie"}
+
+Szacunkowa cena:
+Pobyt: ${price.stayPrice} zł
+Sprzątanie: ${CLEANING_FEE} zł
+Sauna: ${price.sauna ? SAUNA_PRICE + " zł" : "nie"}
+Balia: ${price.balia ? BALIA_PRICE + " zł" : "nie"}
+Razem: ${price.total} zł
+
+Proszę o potwierdzenie dostępności i ceny.`;
+
       btn.href = `https://wa.me/48534900140?text=${encodeURIComponent(message)}`;
     }
 
@@ -356,13 +487,14 @@
         grid.appendChild(cell);
       }
 
-      updateReserveButton();
+      updatePrice();
     }
 
     async function openCalendar(){
       document.getElementById("calendarModal").style.display = "flex";
       await loadCalendarEvents();
       renderCalendar();
+      updatePrice();
     }
 
     function closeCalendar(){
